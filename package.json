@@ -1,0 +1,40 @@
+{
+  "name": "naver-place",
+  "version": "1.0.0",
+  "description": "Naver place parser",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "npm run compile && babel-node .",
+    "test": "npm run compile && standard",
+    "compile": "babel src/parse.js -o dist/parse.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://ChalkPE@github.com/ChalkPE/naver-place.git"
+  },
+  "keywords": [
+    "naver",
+    "place",
+    "parser"
+  ],
+  "author": "ChalkPE <chalk@chalk.pe>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ChalkPE/naver-place/issues"
+  },
+  "homepage": "https://github.com/ChalkPE/naver-place#readme",
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "standard": "^10.0.2"
+  },
+  "dependencies": {
+    "axios": "^0.16.2",
+    "cheerio": "^1.0.0-rc.2",
+    "koa": "^2.3.0",
+    "koa-chalk-logger": "^1.0.0",
+    "koa-router": "^7.2.1",
+    "phantomjs-prebuilt": "^2.1.14"
+  }
+}
