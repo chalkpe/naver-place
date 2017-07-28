@@ -23,11 +23,9 @@ router.get('/:id', async ctx => {
     ctx.params.id
   ]
 
-  try {
-    ctx.body = JSON.parse(await execute(args))
-  } catch (err) {
-    ctx.throw(400, err.message)
-  }
+  await execute(args)
+    .then(res => (ctx.body = JSON.parse(res)))
+    .catch(err => ctx.throw(400, err))
 })
 
 app

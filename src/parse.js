@@ -4,25 +4,36 @@ import system from 'system'
 import webpage from 'webpage'
 
 function main () {
-  if (system.args.length <= 1) return write(1, 'insufficient arguments')
+  if (system.args.length <= 1) return write(false, 'insufficient arguments')
   const url = 'https://store.naver.com/restaurants/detail?id=' + system.args[1]
 
   const page = webpage.create()
   page.settings.loadImages = false
   page.settings.userAgent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:54.0) Gecko/20100101 Firefox/54.0'
 
-  page.open(url, status => (status !== 'success')
-    ? write(false, { message: `Unable to load the url ${url}` })
-    : setTimeout(() => write(true, { date: new Date(), result: page.evaluate(parse) }), 1000))
+  page.open(url, status => {
+    if (status !== 'success') return write(false, { message: `Unable to load the url ${url}` })
+
+    setTimeout(() => {
+      const result = page.evaluate(parse)
+      if (!result) return write(false, { message: '#content not found' })
+
+      write(true, result)
+    }, 1000)
+  })
 }
 
 function write (ok, data) {
-  console.log(JSON.stringify({ ok, ...data }))
+  console.log(JSON.stringify({
+    ok, date: new Date(), ...data
+  }))
+
   phantom.exit(0)
 }
 
 function parse () {
   const contentArea = document.getElementById('content')
+  if (!contentArea) return false
 
   const nameArea = contentArea.querySelector('.biz_name_area')
   const name = nameArea.querySelector('strong.name').textContent
