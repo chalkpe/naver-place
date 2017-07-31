@@ -29,13 +29,13 @@ export default function parse () {
 
     const name = nameNode.textContent.trim()
     const priceText = priceNode.textContent.replace(/\D/g, '')
-    const price = parseInt(priceText, 10) // remove comma & won
+    const price = parseInt(priceText, 10) || 0 // remove comma & won
 
     return { name, price }
   }).filter(x => x)
 
   const sumPrice = menus.map(x => x.price).reduce((a, b) => a + b, 0)
-  const averagePrice = sumPrice / menus.length
+  const averagePrice = sumPrice / (menus.length || 1)
 
   return {
     name,
