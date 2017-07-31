@@ -11,7 +11,7 @@ gulp.task('server', () => gulp
 
 gulp.task('parser', () => gulp
   .src('src/parse.js')
-  .pipe(transpile())
+  .pipe(transpile({ chrome: 59 }))
   .pipe(gulp.dest('dist')))
 
 gulp.task('default', ['server', 'parser'])
