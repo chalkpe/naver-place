@@ -1,38 +1,4 @@
-/* eslint-env phantomjs */
-
-import system from 'system'
-import webpage from 'webpage'
-
-function success (data) {
-  write(true, data)
-}
-
-function fail (message) {
-  write(false, { message })
-}
-
-function write (ok, data) {
-  const result = Object.assign({
-    ok: !!ok,
-    date: new Date()
-  }, data)
-
-  console.log(JSON.stringify(result))
-  phantom.exit(0)
-}
-
-function load (url, page, status) {
-  if (status !== 'success') {
-    return fail(`Unable to load the url ${url}`)
-  }
-
-  setTimeout(() => {
-    const result = page.evaluate(parse)
-    result ? success(result) : fail('#content not found')
-  }, 1000)
-}
-
-function parse () {
+export default function parse () {
   const contentArea = document.getElementById('content')
   if (!contentArea) return false
 
@@ -56,21 +22,4 @@ function parse () {
   const cBooking = convenienceNode && convenienceNode.textContent.indexOf('예약') >= 0
 
   return { name, category, nBooking, cBooking, tel, addresses, homepages }
-}
-
-function main () {
-  if (system.args.length <= 1) return fail('insufficient arguments')
-  const url = 'https://store.naver.com/restaurants/detail?id=' + system.args[1]
-
-  const page = webpage.create()
-  page.settings.loadImages = false
-  page.settings.userAgent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:54.0) Gecko/20100101 Firefox/54.0'
-
-  page.open(url, status => load(url, page, status))
-}
-
-try {
-  main()
-} catch (err) {
-  fail(err.message)
 }

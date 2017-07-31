@@ -1,31 +1,38 @@
-import path from 'path'
-import { exec } from 'child_process'
-import phantomjs from 'phantomjs-prebuilt'
+import { launch } from 'chrome-launcher'
+import CDP from 'chrome-remote-interface'
 
 import Koa from 'koa'
 import Router from 'koa-router'
 import logger from 'koa-chalk-logger'
 
+import parse from './parse'
+
 const app = new Koa()
 const router = new Router()
 
-const scriptPath = path.resolve(__dirname, '..', 'dist', 'parse.js')
-
-function execute (args) {
-  return new Promise((resolve, reject) =>
-    exec(args.join(' '), (err, data) => err ? reject(err) : resolve(data)))
-}
+const base = 'https://store.naver.com/restaurants/detail?id='
 
 router.get('/:id', async ctx => {
-  const args = [
-    phantomjs.path,
-    scriptPath,
-    ctx.params.id
-  ]
+  const startingUrl = base + ctx.params.id
+  const chromeFlags = ['--disable-gpu', '--headless']
 
-  await execute(args)
-    .then(res => (ctx.body = JSON.parse(res)))
-    .catch(err => ctx.throw(400, err))
+  const chrome = await launch({ startingUrl, chromeFlags })
+  const protocol = await CDP({ port: chrome.port })
+
+  const { Page, Runtime } = protocol
+  await Promise.all([Page.enable(), Runtime.enable()])
+
+  await Page.loadEventFired()
+  const { result } = await Runtime.evaluate({
+    returnByValue: true,
+    expression: `(${parse})()`
+  })
+
+  const data = result.value || { message: 'not found' }
+  ctx.body = Object.assign({ ok: !!result.value, date: new Date() }, data)
+
+  protocol.close()
+  chrome.kill()
 })
 
 app
