@@ -14,7 +14,7 @@ export default function parse () {
 
   const homepageAnchors = infoArea.querySelectorAll('.list_item_homepage a')
   const homepages = Array.prototype.map.call(homepageAnchors, node => node.getAttribute('href'))
-  
+
   const buttonNodes = contentArea.querySelectorAll('.func_btn_area ul li')
   const nBooking = buttonNodes.length > 3 // 4개이면 예약 버튼이 있는 걸로 취급
 
