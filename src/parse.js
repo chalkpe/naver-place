@@ -37,6 +37,9 @@ export default function parse () {
   const sumPrice = menus.map(x => x.price).reduce((a, b) => a + b, 0)
   const averagePrice = sumPrice / (menus.length || 1)
 
+  const tvNodes = infoArea.querySelectorAll('.list_item_tv .txt .tv')
+  const tvs = Array.prototype.map.call(tvNodes, node => node.textContent)
+
   return {
     name,
     category,
@@ -49,6 +52,8 @@ export default function parse () {
     cBooking,
 
     menus,
-    averagePrice
+    averagePrice,
+
+    tvs
   }
 }
