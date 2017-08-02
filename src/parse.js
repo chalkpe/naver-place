@@ -27,11 +27,19 @@ export default function parse () {
     const priceNode = node.querySelector('.price')
     if (!nameNode || !priceNode) return false
 
+    const priceText = priceNode.textContent
     const name = nameNode.textContent.trim()
-    const priceText = priceNode.textContent.replace(/\D/g, '')
-    const price = parseInt(priceText, 10) || 0 // remove comma & won
 
-    return { name, price }
+    // remove non-numerics (comma, won, etc.)
+    const getPrice = text => parseInt(text.replace(/\D/g, ''), 10) || 0
+
+    // return average if price has a range
+    if (priceText.includes('~')) {
+      const prices = priceText.split('~').map(getPrice)
+      return { name, price: prices.reduce((a, b) => a + b) / prices.length }
+    }
+
+    return { name, price: getPrice(priceText) }
   }).filter(x => x)
 
   const sumPrice = menus.map(x => x.price).reduce((a, b) => a + b, 0)
