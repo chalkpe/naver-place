@@ -80,14 +80,41 @@ const $lista = (dom, query, attr) => $map(dom, query, node => node.getAttribute(
 
 /**
  * Removes non-numerics from `text` and converts it.
- * If it cannot be converted into a number, then the zero returned instead.
+ * If it cannot be converted into a number, the zero is returned instead.
  *
  * @param {string} text
  * @returns {number}
  */
-const getPrice = text => parseInt(text.replace(/\D/g, ''), 10) || 0
+const clean = text => parseInt(text.replace(/\D/g, ''), 10) || 0
 
-export default function parse () {
+/**
+ * Calculates the average of given list.
+ *
+ * @param {number[]} list The given list.
+ * @returns {number}
+ */
+const getAverage = list => {
+  const sum = list.reduce((a, b) => a + b)
+  return Math.round(sum / (list.length || 1))
+}
+
+/**
+ * Returns the price of given string.
+ * If price has a range, the average is returned instead.
+ *
+ * @param {string} price
+ * @returns {number}
+ */
+const getPrice = price => price.includes('~')
+  ? getAverage(price.split('~').map(clean)) : clean(price)
+
+/**
+ * Parse the document.
+ * Returns false if the document has no `#content`.
+ *
+ * @returns {Object|boolean}
+ */
+const parse = () => {
   const contentArea = $(document, '#content')
   if (!contentArea) return false
 
@@ -106,33 +133,12 @@ export default function parse () {
   const nBooking = $all(contentArea, '.func_btn_area ul li').length > 3 // 4개이면 예약 버튼이 있는 걸로 취급
 
   const menus = $mapf(infoArea, '.list_item_menu .list_menu li', node => {
-    const priceText = $text(node, '.price')
-    const name = $text(node, '.menu .name')
-
-    if (!name || !priceText) return false
-    if (!priceText.includes('~')) return { name, price: getPrice(priceText) }
-
-    const prices = priceText.split('~').map(getPrice) // return average if price has a range
-    return { name, price: prices.reduce((a, b) => a + b) / prices.length }
+    const [name, price] = [$text(node, '.menu .name'), $text(node, '.price')]
+    return !!name && !!price && { name, price: getPrice(price), originalText: price }
   })
+  const averagePrice = getAverage(menus.map(m => m.price))
 
-  const sumPrice = menus.map(x => x.price).reduce((a, b) => a + b)
-  const averagePrice = sumPrice / (menus.length || 1)
-
-  return {
-    name,
-    category,
-
-    tel,
-    addresses,
-    homepages,
-
-    nBooking,
-    cBooking,
-
-    menus,
-    averagePrice,
-
-    tvs
-  }
+  return { name, category, tel, addresses, homepages, nBooking, cBooking, menus, averagePrice, tvs }
 }
+
+parse()

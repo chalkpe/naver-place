@@ -1,3 +1,5 @@
+import { readFileSync } from 'fs'
+
 import { launch } from 'chrome-launcher'
 import CDP from 'chrome-remote-interface'
 
@@ -5,12 +7,11 @@ import Koa from 'koa'
 import Router from 'koa-router'
 import logger from 'koa-chalk-logger'
 
-import parse from './parse'
-
 const app = new Koa()
 const router = new Router()
 
 const base = 'https://store.naver.com/restaurants/detail?id='
+const expression = readFileSync('dist/parse.js', { encoding: 'utf8' })
 
 router.get('/:id', async ctx => {
   const startingUrl = base + ctx.params.id
@@ -23,10 +24,7 @@ router.get('/:id', async ctx => {
   await Promise.all([Page.enable(), Runtime.enable()])
 
   await Page.loadEventFired()
-  const { result } = await Runtime.evaluate({
-    returnByValue: true,
-    expression: `(${parse})()`
-  })
+  const { result } = await Runtime.evaluate({ expression, returnByValue: true })
 
   const data = result.value || { message: 'not found' }
   ctx.body = Object.assign({ ok: !!result.value, date: new Date() }, data)
