@@ -1,52 +1,82 @@
+/**
+ * Shorthand for `Document.querySelector` and `Document.querySelectorAll`.
+ *
+ * @param {Document|Element} dom The parent.
+ * @param {string} query A string containing a CSS selector.
+ * @param {boolean} all If true, returns a list of every matched elements.
+ * @returns {Element|NodeList}
+ */
+const $ = (dom, query, all) => dom['querySelector' + (all ? 'All' : '')](query)
+
+/**
+ * Returns `textContent` of `node`.
+ * If either `node` is falsy or has no `textContent`, return `def` instead.
+ *
+ * @param {Node} node
+ * @param {string} def The default value.
+ * @returns {string}
+ */
+const $def = (node, def = '') => (node && node.textContent) || def
+
+/**
+ * Returns the text of first element that matches the selector.
+ *
+ * @param {Document|Element} dom The parent.
+ * @param {string} query A string containing a CSS selector.
+ * @param {string} def The default value.
+ * @returns {string}
+ */
+const $text = (dom, query, def = '') => $def($(dom, query), def)
+
+/**
+ * Shorthand for `Document.querySelectorAll`.
+ *
+ * @param {Document|Element} dom The parent.
+ * @param {string} query A string containing a CSS selector.
+ * @returns {NodeList}
+ */
+const $all = (dom, query) => $(dom, query, true)
+
+const $map = (dom, query, map) => Array.prototype.map.call($all(dom, query), node => map(node))
+
+const $mapf = (dom, query, map) => $map(dom, query, map).filter(result => !!result)
+
+const $list = (dom, query) => $map(dom, query, node => node.textContent)
+
+const getPrice = text => parseInt(text.replace(/\D/g, ''), 10) || 0 // remove non-numerics (comma, won, etc.)
+
 export default function parse () {
-  const contentArea = document.getElementById('content')
+  const contentArea = $(document, '#content')
   if (!contentArea) return false
 
-  const nameArea = contentArea.querySelector('.biz_name_area')
-  const name = nameArea.querySelector('strong.name').textContent
-  const category = nameArea.querySelector('span.category').textContent
+  const nameArea = $(contentArea, '.biz_name_area')
+  const name = $text(nameArea, 'strong.name')
+  const category = $text(nameArea, 'span.category')
 
-  const infoArea = contentArea.querySelector('.list_bizinfo')
-  const tel = infoArea.querySelector('.list_item_biztel').textContent
+  const infoArea = $(contentArea, '.list_bizinfo')
+  const tel = $text(infoArea, '.list_item_biztel')
 
-  const addressNodes = infoArea.querySelectorAll('.list_item_address span.addr')
-  const addresses = Array.prototype.map.call(addressNodes, node => node.textContent)
+  const tvs = $list(infoArea, '.list_item_tv .txt .tv')
+  const addresses = $list(infoArea, '.list_item_address span.addr')
 
-  const homepageAnchors = infoArea.querySelectorAll('.list_item_homepage a')
-  const homepages = Array.prototype.map.call(homepageAnchors, node => node.getAttribute('href'))
+  const homepages = $map(infoArea, '.list_item_homepage a', node => node.getAttribute('href'))
 
-  const buttonNodes = contentArea.querySelectorAll('.func_btn_area ul li')
-  const nBooking = buttonNodes.length > 3 // 4개이면 예약 버튼이 있는 걸로 취급
+  const cBooking = $text(infoArea, '.list_item_convenience .convenience').indexOf('예약') >= 0
+  const nBooking = $all(contentArea, '.func_btn_area ul li').length > 3 // 4개이면 예약 버튼이 있는 걸로 취급
 
-  const convenienceNode = infoArea.querySelector('.list_item_convenience .convenience')
-  const cBooking = !!convenienceNode && convenienceNode.textContent.indexOf('예약') >= 0
+  const menus = $mapf(infoArea, '.list_item_menu .list_menu li', node => {
+    const priceText = $text(node, '.price')
+    const name = $text(node, '.menu .name').trim()
 
-  const menuNodes = infoArea.querySelectorAll('.list_item_menu .list_menu li')
-  const menus = Array.prototype.map.call(menuNodes, node => {
-    const nameNode = node.querySelector('.menu .name')
-    const priceNode = node.querySelector('.price')
-    if (!nameNode || !priceNode) return false
+    if (!name || !priceText) return false
+    if (!priceText.includes('~')) return { name, price: getPrice(priceText) }
 
-    const priceText = priceNode.textContent
-    const name = nameNode.textContent.trim()
+    const prices = priceText.split('~').map(getPrice) // return average if price has a range
+    return { name, price: prices.reduce((a, b) => a + b) / prices.length }
+  })
 
-    // remove non-numerics (comma, won, etc.)
-    const getPrice = text => parseInt(text.replace(/\D/g, ''), 10) || 0
-
-    // return average if price has a range
-    if (priceText.includes('~')) {
-      const prices = priceText.split('~').map(getPrice)
-      return { name, price: prices.reduce((a, b) => a + b) / prices.length }
-    }
-
-    return { name, price: getPrice(priceText) }
-  }).filter(x => x)
-
-  const sumPrice = menus.map(x => x.price).reduce((a, b) => a + b, 0)
+  const sumPrice = menus.map(x => x.price).reduce((a, b) => a + b)
   const averagePrice = sumPrice / (menus.length || 1)
-
-  const tvNodes = infoArea.querySelectorAll('.list_item_tv .txt .tv')
-  const tvs = Array.prototype.map.call(tvNodes, node => node.textContent)
 
   return {
     name,
