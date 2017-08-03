@@ -16,6 +16,12 @@
 [Headless Chrome]: https://developers.google.com/web/updates/2017/04/headless-chrome
 [pm2]: https://github.com/Unitech/pm2
 
+### 포트 설정
+다음 방법 중 하나를 사용하세요. 기본값은 `8080`입니다.
+
+- `NP_PORT` 환경변수를 `????`로 설정
+- `.env` 파일을 만들고 `NP_PORT=????`를 입력
+
 ## 요청 방법
 - GET `http://localhost:8080/:id` -> `application/json`
 - `https://store.naver.com/restaurants/detail?id=` 뒤의 숫자가 `:id`

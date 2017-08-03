@@ -1,3 +1,4 @@
+import dotenv from 'dotenv'
 import { readFileSync } from 'fs'
 
 import { launch } from 'chrome-launcher'
@@ -6,6 +7,9 @@ import CDP from 'chrome-remote-interface'
 import Koa from 'koa'
 import Router from 'koa-router'
 import logger from 'koa-chalk-logger'
+
+dotenv.config()
+const port = process.env.NP_PORT || 8080
 
 const app = new Koa()
 const router = new Router()
@@ -37,4 +41,4 @@ app
   .use(logger())
   .use(router.routes())
   .use(router.allowedMethods())
-  .listen(8080, () => console.log('Listening on port 8080'))
+  .listen(port, () => console.log(`Listening on port ${port}`))
