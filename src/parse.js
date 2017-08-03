@@ -37,13 +37,55 @@ const $text = (dom, query, def = '') => $def($(dom, query), def)
  */
 const $all = (dom, query) => $(dom, query, true)
 
+/**
+ * Gets a list of matched elements and `map` it.
+ *
+ * @param {Document|Element} dom The parent.
+ * @param {string} query A string containing a CSS selector.
+ * @param {function} map The callback function for `Array.prototype.map`
+ * @returns {Object[]}
+ */
 const $map = (dom, query, map) => Array.prototype.map.call($all(dom, query), node => map(node))
 
+/**
+ * Gets a list of matched elements and `map` it.
+ * Exclude elements from list that `map` function returned falsy value for it.
+ *
+ * @param {Document|Element} dom The parent.
+ * @param {string} query A string containing a CSS selector.
+ * @param {function} map The callback function for `Array.prototype.map`
+ * @returns {Object[]}
+ */
 const $mapf = (dom, query, map) => $map(dom, query, map).filter(result => !!result)
 
-const $list = (dom, query) => $map(dom, query, node => node.textContent)
+/**
+ * Gets a text list of matched elements.
+ *
+ * @param {Document|Element} dom The parent.
+ * @param {string} query A string containing a CSS selector.
+ * @param {string} def The default value.
+ * @returns {string[]}
+ */
+const $list = (dom, query, def) => $map(dom, query, node => $def(node, def))
 
-const getPrice = text => parseInt(text.replace(/\D/g, ''), 10) || 0 // remove non-numerics (comma, won, etc.)
+/**
+ * Gets a list of the attribute of matched elements.
+ *
+ * @param {Document|Element} dom The parent.
+ * @param {string} query A string containing a CSS selector.
+ * @param {string} attr The attribute name.
+ * @returns {string[]}
+ */
+const $lista = (dom, query, attr) => $map(dom, query, node => node.getAttribute(attr))
+
+/**
+ * Removes non-numerics from `text` and converts it.
+ * If it cannot be converted into a number, then the zero returned instead.
+ *
+ * @param {string} text
+ * @returns {number}
+ */
+const getPrice = text => parseInt(text.replace(/\D/g, ''), 10) || 0
 
 export default function parse () {
   const contentArea = $(document, '#content')
@@ -58,8 +100,7 @@ export default function parse () {
 
   const tvs = $list(infoArea, '.list_item_tv .txt .tv')
   const addresses = $list(infoArea, '.list_item_address span.addr')
-
-  const homepages = $map(infoArea, '.list_item_homepage a', node => node.getAttribute('href'))
+  const homepages = $lista(infoArea, '.list_item_homepage a', 'href')
 
   const cBooking = $text(infoArea, '.list_item_convenience .convenience').indexOf('예약') >= 0
   const nBooking = $all(contentArea, '.func_btn_area ul li').length > 3 // 4개이면 예약 버튼이 있는 걸로 취급
