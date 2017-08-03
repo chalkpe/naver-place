@@ -1,8 +1,8 @@
 {
   "name": "naver-place",
   "version": "1.0.0",
-  "description": "Naver place parser",
-  "main": "src/index.js",
+  "description": "Naver place crawler",
+  "main": "src/server.js",
   "scripts": {
     "compile": "gulp",
     "lint": "standard src/*.js",
@@ -17,7 +17,7 @@
   "keywords": [
     "naver",
     "place",
-    "parser"
+    "crawler"
   ],
   "author": "ChalkPE <chalk@chalk.pe>",
   "license": "MIT",
