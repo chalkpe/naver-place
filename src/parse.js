@@ -16,7 +16,7 @@ const $ = (dom, query, all) => dom['querySelector' + (all ? 'All' : '')](query)
  * @param {string} def The default value.
  * @returns {string}
  */
-const $def = (node, def = '') => (node && node.textContent) || def
+const $def = (node, def = '') => ((node && node.textContent) || def).trim()
 
 /**
  * Returns the text of first element that matches the selector.
@@ -107,7 +107,7 @@ export default function parse () {
 
   const menus = $mapf(infoArea, '.list_item_menu .list_menu li', node => {
     const priceText = $text(node, '.price')
-    const name = $text(node, '.menu .name').trim()
+    const name = $text(node, '.menu .name')
 
     if (!name || !priceText) return false
     if (!priceText.includes('~')) return { name, price: getPrice(priceText) }
