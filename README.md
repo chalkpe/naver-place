@@ -1,5 +1,8 @@
 # naver-place
-네이버 플레이스 크롤러
+[네이버][NAVER] [플레이스][네이버 플레이스] 크롤러
+
+[NAVER]: https://www.naver.com/
+[네이버 플레이스]: https://m.naver.com/#PLACE
 
 ## 사용법
 1. [이 저장소]를 다운로드하세요.
@@ -17,11 +20,13 @@
 [Headless Chrome]: https://developers.google.com/web/updates/2017/04/headless-chrome
 [pm2]: https://github.com/Unitech/pm2
 
-### 포트 설정
+### 포트 변경
 다음 방법 중 하나를 사용하세요. 기본값은 `8080`입니다.
 
 - `NP_PORT` 환경변수를 `????`로 설정
-- `.env` 파일을 만들고 `NP_PORT=????`를 입력
+- [`.env` 파일][dotenv]을 만들고 `NP_PORT=????`를 입력
+
+[dotenv]: https://github.com/motdotla/dotenv
 
 ## 요청 방법
 - GET `http://localhost:8080/:id` -> `application/json`
