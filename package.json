@@ -7,7 +7,8 @@
     "compile": "gulp",
     "lint": "standard src/*.js",
     "test": "npm run lint && npm run compile",
-    "start": "npm test && pm2 start dist/server.js"
+    "start": "npm test && pm2 start dist/server.js",
+    "dev": "npm test && pm2 start dist/server.js --watch"
   },
   "repository": {
     "type": "git",
