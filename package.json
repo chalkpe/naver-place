@@ -8,7 +8,9 @@
     "lint": "standard src/*.js",
     "test": "npm run lint && npm run compile",
     "start": "npm test && pm2 start dist/server.js",
-    "dev": "npm test && pm2 start dist/server.js --watch"
+    "dev": "npm test && pm2 start dist/server.js --watch",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -39,6 +41,8 @@
     "koa": "^2.3.0",
     "koa-chalk-logger": "^1.0.0",
     "koa-router": "^7.2.1",
-    "pm2": "^2.6.1"
-  }
+    "pm2": "^2.6.1",
+    "snyk": "^1.193.1"
+  },
+  "snyk": true
 }
